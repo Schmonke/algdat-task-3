@@ -254,6 +254,7 @@ void run_sort_test(const char *test_name, quicksort_func sort, int *t, int lengt
     printf(" - calc_Checksum     : %s\n", bool_to_pass(calc_checksum(t, length) == chk));
     printf(" - Time         : %08lluns (%4.01fms)\n", ns, ms);
 }
+
 /*
 * Functions creates arrays, sorts them and prints the result. 
 * Distinguishes bewteen first and second sorting algorithm.
@@ -275,7 +276,6 @@ void measure_sort_time(const char *title, int length, int upper_range)
     free(array_a);
     free(array_b);
 }
-
 
 int main()
 {
