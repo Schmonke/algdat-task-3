@@ -14,15 +14,16 @@ const char *bool_to_pass(int b)
 }
 
 /**
- * This function creates a random array with length of "length"
- * we make use of the lib rand() function to generate a random array
- * and a for loop to add all random values to array.
+ * This function creates a random array with specified length.
  * 
- * On line 27 we use calloc which allocates a block of memory
- * for an array of n elements of size and initializes all bytes
- * in the allocated storage to zero. If allocation succeeds, 
- * returns a pointer to the lowest (first) byte
- * in the allocated memory block that is suitably aligned for any object type.
+ * Uses the lib function rand() to generate random numbers to
+ * add to the array. 
+ * 
+ * Calloc function allocates a block of memory for an array with
+ * specified length and initializes all bytes in the allocated 
+ * storage to zero. If allocation succeeds, it returns a pointer
+ * to the lowest (first) byte in the allocated memory block that 
+ * is suitably aligned for any object type.
  */
 int *create_random_array(int length, int min, int max)
 {
@@ -46,7 +47,7 @@ int *clone_array(int* t, int length)
 }
 
 /**
- * Method swaps the values stored at the specified memory adressess.
+ * function swaps the values stored at the specified memory adressess.
  */
 void swap(int *i, int *j)
 {
@@ -76,11 +77,11 @@ int median3sort(int *t, int l, int r)
 }
 
 /**
- * Method splits specified table and returns a pivot position/index.
+ * function splits specified table and returns a pivot position/index.
  * 
  * First it finds the median with median3sort. The element at this index
  * is then moved to the last index to not be in the way. 
- * The method runs a for loop until a break statement is called.
+ * The function runs a for loop until a break statement is called.
  * For each iteration it checks wheter the left indexed table value is 
  * smaller than the median table value. The left index increments until 
  * its tabel value is larger than the median tabel value.
@@ -112,9 +113,9 @@ int split(int *t, int l, int r)
 }
 
 /*
-* This is the implementation of the original quicksort
-*
-*
+* This is the implementation of the original quicksort algorithm.
+* Source: Hafting, H. and Ljosland, M. (2003) "Algoritmer og datastrukturer 
+* Med eksempler i C og Java". 1. edition. Trondheim: Kopinor.
 */
 void quicksort_impl(int *t, int l, int r)
 {
@@ -130,6 +131,10 @@ void quicksort_impl(int *t, int l, int r)
     }
 }
 
+/**
+ * This is just a simplified function signature to ensure 
+ * that noone forgets to use the lenght -1 parameter
+ */
 void quicksort(int *t, int length)
 {
     quicksort_impl(t, 0, length - 1);
@@ -159,15 +164,20 @@ void quicksort_plus_impl(int *t, int length, int l, int r)
     }
 }
 
-// This is just a simplified function signature to ensure 
-// that noone forgets to use the lenght -1 parameter
+/**
+ * This is just a simplified function signature to ensure 
+ * that noone forgets to use the lenght -1 parameter
+ */
 void quicksort_plus(int *t, int length)
 {
     quicksort_plus_impl(t, length, 0, length - 1);
 }
 
-//Check to ensure that the sum of the array is the same
-int checksum(int *t, int length)
+/**
+ * Summarize all elements of specified array.
+ * Used for validating the sum of the array before and after sorting. 
+ */
+int calc_checksum(int *t, int length)
 {
     int sum = 0;
     for (int i = 0; i < length; i++)
@@ -177,8 +187,13 @@ int checksum(int *t, int length)
     return sum;
 }
 
-// Checks that the element on index i
-// is greater than the element on i + 1
+/**
+ * Checks that the element on index i in specified array
+ * is greater than the element on i + 1. 
+ * 
+ * Dependecy here is that a sorted array should be sorted from
+ * low values to high.
+ */
 int sanity_check(int *t, int length)
 {
     for(int i = 0; i < length - 1; i++)
@@ -191,25 +206,25 @@ int sanity_check(int *t, int length)
     return 1;
 }
 
-/*
-*
-*
-*/
+/**
+ * Define a type to represent sorting functions.
+ * Used for easy switch between sorting functions when testing. 
+ */ 
 typedef void quicksort_func(int *t, int length);
+
 /*
 *
-* Function to run the tests and to measure the time of each method.
+* Function to run the tests and to measure the time of each function.
 * 
-* The tests are checksum and sanity. 
+* The tests are calc_checksum and sanity. 
 *
 * quicksort is run from the typedef quicksort_func with the sort param.
 *
-* 
 */
 void run_sort_test(const char *test_name, quicksort_func sort, int *t, int length)
 {
     printf("%s:\n", test_name);
-    int chk = checksum(t, length);
+    int chk = calc_checksum(t, length);
 
     struct timespec start, end;
     if (clock_gettime(CLOCK_REALTIME, &start))
@@ -218,7 +233,6 @@ void run_sort_test(const char *test_name, quicksort_func sort, int *t, int lengt
         return;
     }
 
-    //Quicksort done from the t with random integer inputs on index from for-loop
     sort(t, length);
 
     if (clock_gettime(CLOCK_REALTIME, &end))
@@ -231,19 +245,14 @@ void run_sort_test(const char *test_name, quicksort_func sort, int *t, int lengt
     double ms = ns / 1000000.0;
 
     printf(" - Sanity check : %s\n", bool_to_pass(sanity_check(t, length)));
-    printf(" - Checksum     : %s\n", bool_to_pass(checksum(t, length) == chk));
+    printf(" - calc_Checksum     : %s\n", bool_to_pass(calc_checksum(t, length) == chk));
     printf(" - Time         : %08lluns (%4.01fms)\n", ns, ms);
 }
 /*
-* 
-* 
-* 
-* 
-* 
-* 
-* 
+* Functions creates arrays, sorts them and prints the result. 
+* Distinguishes bewteen first and second sorting algorithm.
 */
-void print_results(const char *title, int length, int upper_range)
+void measure_sort_time(const char *title, int length, int upper_range)
 {
     int *array_a, *array_b;
     
@@ -261,6 +270,7 @@ void print_results(const char *title, int length, int upper_range)
     free(array_b);
 }
 
+
 int main()
 {
     const int n_min = 100000, n_max = 10000000;
@@ -268,8 +278,7 @@ int main()
     
     for (int i = n_min; i <= n_max; i *= 10)
     {
-        print_results("Sparse numbers", i, big_range);
-        print_results("Close numbers", i, small_range);
+        measure_sort_time("Sparse numbers", i, big_range);
+        measure_sort_time("Close numbers", i, small_range);
     }
 }
-
