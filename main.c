@@ -55,16 +55,14 @@ void quicksort(int *t, int v, int h)
 
 int main()
 {
-    int length = 10000;
-    int array[10000] = {};
+    int length = 1000000;
+    int array[1000000] = {};
 
 
     //Filling the array with random integers and printing vaules
     for(int i = 0; i<length; i++)
     {
         array[i] = rand() %100; //random numbers in range 80
-        //printf("lol");
-        printf("%d  ", array[i]);
     }
 
     struct timespec start,end;
@@ -84,14 +82,9 @@ int main()
     }
 
     printf("sorted:\n");
-    //Printing sorted list
-    for(int i = 0; i<length; i++)
-    {
-        printf("%d \n", array[i]);
-    }
-
 
     double ms = (end.tv_sec-start.tv_sec)*1000 + (end.tv_nsec - start.tv_nsec)/1000000;
     double ns= (end.tv_nsec - start.tv_nsec);
+    printf("Nanosec: %4.01f \n", ns);
     printf("Time: %4.01f", ms);
 }
