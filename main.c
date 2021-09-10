@@ -4,123 +4,186 @@
 #include <string.h>
 #include <sys/types.h>
 
-const char *bool_to_str(int b)
+/** 
+ * Returns OK or FAIL as boolean string instead of 1 and 0.
+ * Used in printing.
+ */
+const char *bool_to_pass(int b)
 {
-    return b ? "True" : "False";
+    return b ? "OK" : "FAIL";
 }
 
-void bytt(int *j, int *i)
+/**
+ * This function creates a random array with length of "length"
+ * we make use of the lib rand() function to generate a random array
+ * and a for loop to add all random values to array.
+ * 
+ * On line 27 we use calloc which allocates a block of memory
+ * for an array of n elements of size and initializes all bytes
+ * in the allocated storage to zero. If allocation succeeds, 
+ * returns a pointer to the lowest (first) byte
+ * in the allocated memory block that is suitably aligned for any object type.
+ */
+int *create_random_array(int length, int min, int max)
 {
-    int k = *j;
-    *j = *i;
-    *i = k;
-}
-
-int median3sort(int *t, int v, int h)
-{
-    int m = (v + h) / 2;
-    if (t[v] > t[m])
-        bytt(&t[v], &t[m]);
-    if (t[m] > t[h])
+    int *t = calloc(length, sizeof(int));
+    for (int i = 0; i < length; i++)
     {
-        bytt(&t[m], &t[h]);
-        if (t[v] > t[m])
-            bytt(&t[v], &t[m]);
+        t[i] = min + (rand() % (max + 1));
+    }
+    return t;
+}
+
+/**
+ * Function clones specified array.
+ * Returns the clone.
+ */
+int *clone_array(int* t, int length)
+{
+    int *newArray = calloc(length, sizeof(int));
+    memcpy(newArray, t, length * sizeof(int));
+    return newArray;
+}
+
+/**
+ * Method swaps the values stored at the specified memory adressess.
+ */
+void swap(int *i, int *j)
+{
+    int k = *i;
+    *i = *j;
+    *j = k;
+}
+
+/*
+* Function median3sort is an aid algorithm for the main quicksort algorithm.
+* This function finds the median of the first, last and the middle number
+* in the array and uses that as its partitional placement.
+*
+* The purpose is to ensure that a sorted array still has perfect partitioning
+* while we increase the probability for a good partition in an unsorted array.
+*/
+int median3sort(int *t, int l, int r)
+{
+    int m = (l + r) / 2;
+    if (t[l] > t[m]) swap(&t[l], &t[m]);
+    if (t[m] > t[r])
+    {
+        swap(&t[m], &t[r]);
+        if (t[l] > t[m]) swap(&t[l], &t[m]);
     }
     return m;
 }
 
-int splitt(int *t, int v, int h)
+/**
+ * Method splits specified table and returns a pivot position/index.
+ * 
+ * First it finds the median with median3sort. The element at this index
+ * is then moved to the last index to not be in the way. 
+ * The method runs a for loop until a break statement is called.
+ * For each iteration it checks wheter the left indexed table value is 
+ * smaller than the median table value. The left index increments until 
+ * its tabel value is larger than the median tabel value.
+ * Same applies for rightindexed only it begins at a big index and decremnts.
+ * 
+ * If the left and right indexes have not passed eachother then the table
+ * values at theses indexes will swap place. 
+ * 
+ * When the indexes eventuelly passes eachother the loop breaks and the median
+ * table value is moved back to its original position. 
+ * 
+ * returns the leftindex as pivot position
+ */
+int split(int *t, int l, int r)
 {
-    int iv, ih;
-    int m = median3sort(t, v, h);
-    int dv = t[m];
-    bytt(&t[m], &t[h - 1]);
-    for (iv = v, ih = h - 1;;)
+    int il, ir;
+    int m = median3sort(t, l, r);
+    int sv = t[m];
+    swap(&t[m], &t[r - 1]);
+    for (il = l, ir = r - 1;;)
     {
-        while (t[++iv] < dv);
-        while (t[--ih] > dv);
-        if (iv >= ih) break;
-        bytt(&t[iv], &t[ih]);
+        while (t[++il] < sv);
+        while (t[--ir] > sv);
+        if (il >= ir) break;
+        swap(&t[il], &t[ir]);
     }
-    bytt(&t[iv], &t[h - 1]);
-    return iv;
+    swap(&t[il], &t[r - 1]);
+    return il;
 }
 
-void quicksort_impl(int *t, int v, int h)
+/*
+* This is the implementation of the original quicksort
+*
+*
+*/
+void quicksort_impl(int *t, int l, int r)
 {
-    if (h - v > 2)
+    if (r - l > 2)
     {
-        int delepos = splitt(t, v, h);
-        quicksort_impl(t, v, delepos - 1);
-        quicksort_impl(t, delepos + 1, h);
+        int pivot = split(t, l, r);
+        quicksort_impl(t, l, pivot - 1);
+        quicksort_impl(t, pivot + 1, r);
     }
     else
     {
-        median3sort(t, v, h);
+        median3sort(t, l, r);
     }
 }
 
-void quicksort(int *array, int length)
+void quicksort(int *t, int length)
 {
-    quicksort_impl(array, 0, length - 1);
+    quicksort_impl(t, 0, length - 1);
 }
 
-void quicksort_plus_impl(int *t, int l, int v, int h)
+/*
+* This is the improved quicksort which adds a check
+* for each pivot and ensures that we have a lower bound (l)
+* greater that 0, that the higher bound (r) is less that the length - 1,
+* and also that the value at the index of [l - 1]
+* is equal to the value at the index of [t + 1]
+*
+*/
+void quicksort_plus_impl(int *t, int length, int l, int r)
 {
-    if (v > 0 && h < l - 1 && t[v - 1] == t[h + 1]) return;
+    if (l > 0 && r < length - 1 && t[l - 1] == t[r + 1]) return;
 
-    if (h - v > 2)
+    if (r - l > 2)
     {
-        int delepos = splitt(t, v, h);
-        quicksort_plus_impl(t, l, v, delepos - 1);
-        quicksort_plus_impl(t, l, delepos + 1, h);
+        int pivot = split(t, l, r);
+        quicksort_plus_impl(t, length, l, pivot - 1);
+        quicksort_plus_impl(t, length, pivot + 1, r);
     }
     else
     {
-        median3sort(t, v, h);
+        median3sort(t, l, r);
     }
 }
 
-void quicksort_plus(int *array, int length)
+// This is just a simplified function signature to ensure 
+// that noone forgets to use the lenght -1 parameter
+void quicksort_plus(int *t, int length)
 {
-    quicksort_plus_impl(array, length, 0, length - 1);
+    quicksort_plus_impl(t, length, 0, length - 1);
 }
 
-int *create_random_array(int length, int min, int max)
+//Check to ensure that the sum of the array is the same
+int checksum(int *t, int length)
 {
-    int *array = calloc(length, sizeof(int));
+    int sum = 0;
     for (int i = 0; i < length; i++)
     {
-        array[i] = min + (rand() % (max + 1));
+        sum += t[i];
     }
-    return array;
+    return sum;
 }
 
-int *clone_array(int* array, int length)
+// Checks that the element on index i
+// is greater than the element on i + 1
+int sanity_check(int *t, int length)
 {
-    int *newArray = calloc(length, sizeof(int));
-    memcpy(newArray, array, length * sizeof(int));
-    return newArray;
-}
-
-int checksum(int *array, int length)
-{
-    int chkSum = 0;
-    int chkXor = 0;
-    for (int i = 0; i < length; i++)
+    for(int i = 0; i < length - 1; i++)
     {
-        chkSum += array[i];
-        chkXor ^= array[i];
-    }
-    return chkSum ^ chkXor;
-}
-
-int sanity_check(int *t, int l)
-{
-    for (int i = 1; i < l - 1; i++)
-    {
-        if (t[i - 1] > t[i])
+        if(t[i] > t[i + 1])
         {
             return 0;
         }
@@ -128,11 +191,25 @@ int sanity_check(int *t, int l)
     return 1;
 }
 
-typedef void quicksort_func(int *t, int l);
-void run_sort_test(const char *test_name, quicksort_func sort, int *t, int l)
+/*
+*
+*
+*/
+typedef void quicksort_func(int *t, int length);
+/*
+*
+* Function to run the tests and to measure the time of each method.
+* 
+* The tests are checksum and sanity. 
+*
+* quicksort is run from the typedef quicksort_func with the sort param.
+*
+* 
+*/
+void run_sort_test(const char *test_name, quicksort_func sort, int *t, int length)
 {
-    printf("### %s ###\n", test_name);
-    int chk = checksum(t, l);
+    printf("%s:\n", test_name);
+    int chk = checksum(t, length);
 
     struct timespec start, end;
     if (clock_gettime(CLOCK_REALTIME, &start))
@@ -141,8 +218,8 @@ void run_sort_test(const char *test_name, quicksort_func sort, int *t, int l)
         return;
     }
 
-    //Quicksort done from the array with random integer inputs on index from for-loop
-    sort(t, l);
+    //Quicksort done from the t with random integer inputs on index from for-loop
+    sort(t, length);
 
     if (clock_gettime(CLOCK_REALTIME, &end))
     {
@@ -153,39 +230,46 @@ void run_sort_test(const char *test_name, quicksort_func sort, int *t, int l)
     unsigned long long ns = (end.tv_sec - start.tv_sec) * 1000000000LL + (long long)(end.tv_nsec - start.tv_nsec);
     double ms = ns / 1000000.0;
 
-    printf("   Array sanity check passed : %s\n", bool_to_str(sanity_check(t, l)));
-    printf("   Array checksum passed     : %s\n", bool_to_str(checksum(t, l) == chk));
-    printf("   Time: %08lluns (%4.01fms)\n", ns, ms);
+    printf(" - Sanity check : %s\n", bool_to_pass(sanity_check(t, length)));
+    printf(" - Checksum     : %s\n", bool_to_pass(checksum(t, length) == chk));
+    printf(" - Time         : %08lluns (%4.01fms)\n", ns, ms);
+}
+/*
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+*/
+void print_results(const char *title, int length, int upper_range)
+{
+    int *array_a, *array_b;
+    
+    printf("\n### %s (n=%d) ###\n", title, length);
+    array_a = create_random_array(length, 0, upper_range);
+    array_b = clone_array(array_a, length);
+
+    run_sort_test("Quicksort", quicksort, array_a, length);
+    run_sort_test("Quicksort (sorted)", quicksort, array_a, length);
+
+    run_sort_test("Quicksort+", quicksort_plus, array_b, length);
+    run_sort_test("Quicksort+ (sorted)", quicksort_plus, array_b, length);
+
+    free(array_a);
+    free(array_b);
 }
 
 int main()
 {
-    const int length = 1000000;
-    int *array_a, *array_b;
-
-    printf("||| Close numbers |||\n");
-    array_a = create_random_array(length, 0, 10);
-    array_b = clone_array(array_a, length);
-
-    run_sort_test("Quicksort: ", quicksort, array_a, length);
-    run_sort_test("Resorting array: ", quicksort, array_a, length);
-
-    run_sort_test("Quicksort+: ", quicksort_plus, array_b, length);
-    run_sort_test("Resorting array: ", quicksort_plus, array_b, length);
-
-    free(array_a);
-    free(array_b);
-
-    printf("\n||| Sparse numbers |||\n");
-    array_a = create_random_array(length, 0, 4000000);
-    array_b = clone_array(array_a, length);
-
-    run_sort_test("Quicksort: ", quicksort, array_a, length);
-    run_sort_test("Resorting array: ", quicksort, array_a, length);
-
-    run_sort_test("Quicksort+: ", quicksort_plus, array_b, length);
-    run_sort_test("Resorting array: ", quicksort_plus, array_b, length);
-
-    free(array_a);
-    free(array_b);
+    const int n_min = 100000, n_max = 10000000;
+    const int small_range = 10, big_range = 10000;
+    
+    for (int i = n_min; i <= n_max; i *= 10)
+    {
+        print_results("Sparse numbers", i, big_range);
+        print_results("Close numbers", i, small_range);
+    }
 }
+
