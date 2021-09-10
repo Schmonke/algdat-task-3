@@ -63,6 +63,9 @@ void swap(int *i, int *j)
 *
 * The purpose is to ensure that a sorted array still has perfect partitioning
 * while we increase the probability for a good partition in an unsorted array.
+*
+* Source: Hafting, H. and Ljosland, M. (2018) "Algoritmer og datastrukturer 
+* Med eksempler i C og Java". 1. edition. Trondheim: Kopinor.
 */
 int median3sort(int *t, int l, int r)
 {
@@ -94,6 +97,9 @@ int median3sort(int *t, int l, int r)
  * table value is moved back to its original position. 
  * 
  * returns the leftindex as pivot position
+ *
+ * Source: Hafting, H. and Ljosland, M. (2018) "Algoritmer og datastrukturer 
+ * Med eksempler i C og Java". 1. edition. Trondheim: Kopinor.
  */
 int split(int *t, int l, int r)
 {
@@ -114,7 +120,7 @@ int split(int *t, int l, int r)
 
 /*
 * This is the implementation of the original quicksort algorithm.
-* Source: Hafting, H. and Ljosland, M. (2003) "Algoritmer og datastrukturer 
+* Source: Hafting, H. and Ljosland, M. (2018) "Algoritmer og datastrukturer 
 * Med eksempler i C og Java". 1. edition. Trondheim: Kopinor.
 */
 void quicksort_impl(int *t, int l, int r)
