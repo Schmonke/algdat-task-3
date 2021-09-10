@@ -1,3 +1,0 @@
-C:/Users/maike/CLionProjects/algdat3/cmake-build-debug/CMakeFiles/algdat3.dir
-C:/Users/maike/CLionProjects/algdat3/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/maike/CLionProjects/algdat3/cmake-build-debug/CMakeFiles/rebuild_cache.dir
